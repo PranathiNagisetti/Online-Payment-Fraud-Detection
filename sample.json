@@ -1,0 +1,12 @@
+{
+  "step": 50,
+  "amount": 12000,
+  "oldbalanceOrg": 15000,
+  "newbalanceOrig": 3000,
+  "oldbalanceDest": 0,
+  "newbalanceDest": 12000,
+  "type_CASH_OUT": 1,
+  "type_DEBIT": 0,
+  "type_PAYMENT": 0,
+  "type_TRANSFER": 0
+}
