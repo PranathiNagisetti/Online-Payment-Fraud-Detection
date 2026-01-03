@@ -6,46 +6,116 @@
 </head>
 <body>
 
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Analyzing Transaction...</p>
+        <p class="loading-subtext">Please wait while we detect fraud</p>
+    </div>
+</div>
+
 <div class="container">
-    <h2>Online Payment Fraud Detection</h2>
+    <div class="header">
+        <h1>🔒 Fraud Detection System</h1>
+        <p class="subtitle">Advanced AI-Powered Transaction Analysis</p>
+    </div>
 
-    <form method="POST" action="/predict">
-        <label>Step:</label>
-        <input type="number" name="step" required>
+    <form method="POST" action="/predict" id="fraudForm">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>⏱️ Step:</label>
+                <input type="number" name="step" required placeholder="Enter step number">
+            </div>
 
-        <label>Amount:</label>
-        <input type="number" step="0.01" name="amount" required>
+            <div class="form-group">
+                <label>💰 Amount:</label>
+                <input type="number" step="0.01" name="amount" required placeholder="0.00">
+            </div>
 
-        <label>Old Balance (Sender):</label>
-        <input type="number" step="0.01" name="oldbalanceOrg" required>
+            <div class="form-group">
+                <label>📊 Old Balance (Sender):</label>
+                <input type="number" step="0.01" name="oldbalanceOrg" required placeholder="0.00">
+            </div>
 
-        <label>New Balance (Sender):</label>
-        <input type="number" step="0.01" name="newbalanceOrig" required>
+            <div class="form-group">
+                <label>📈 New Balance (Sender):</label>
+                <input type="number" step="0.01" name="newbalanceOrig" required placeholder="0.00">
+            </div>
 
-        <label>Old Balance (Receiver):</label>
-        <input type="number" step="0.01" name="oldbalanceDest" required>
+            <div class="form-group">
+                <label>📉 Old Balance (Receiver):</label>
+                <input type="number" step="0.01" name="oldbalanceDest" required placeholder="0.00">
+            </div>
 
-        <label>New Balance (Receiver):</label>
-        <input type="number" step="0.01" name="newbalanceDest" required>
+            <div class="form-group">
+                <label>📊 New Balance (Receiver):</label>
+                <input type="number" step="0.01" name="newbalanceDest" required placeholder="0.00">
+            </div>
+        </div>
 
-        <label>Transaction Type:</label>
-        <select name="type" required>
-            <option value="CASH_OUT">CASH_OUT</option>
-            <option value="DEBIT">DEBIT</option>
-            <option value="PAYMENT">PAYMENT</option>
-            <option value="TRANSFER">TRANSFER</option>
-        </select>
+        <div class="form-group full-width">
+            <label>💳 Transaction Type:</label>
+            <select name="type" required>
+                <option value="" disabled selected>Select transaction type</option>
+                <option value="CASH_OUT">💵 CASH OUT</option>
+                <option value="DEBIT">🏦 DEBIT</option>
+                <option value="PAYMENT">💸 PAYMENT</option>
+                <option value="TRANSFER">↔️ TRANSFER</option>
+            </select>
+        </div>
 
-        <button type="submit">Predict</button>
+        <button type="submit" class="submit-btn">
+            <span>🔍 Analyze Transaction</span>
+        </button>
     </form>
 
+    {% if error %}
+    <div class="result result-fraud">
+        <div class="result-icon">❌</div>
+        <h3>Error</h3>
+        <p>{{ error }}</p>
+        <a href="/" class="back-btn">Try Again</a>
+    </div>
+    {% endif %}
+
     {% if prediction %}
-    <div class="result">
-        <h3>Prediction: {{ prediction }}</h3>
-        <p>Fraud Probability: {{ probability }}</p>
+    <div class="result {% if prediction == 'Not Fraud' %}result-safe{% else %}result-fraud{% endif %}">
+        <div class="result-icon">
+            {% if prediction == 'Not Fraud' %}
+            ✅
+            {% else %}
+            ⚠️
+            {% endif %}
+        </div>
+        <h3>{{ prediction }}</h3>
+        <div class="probability-bar">
+            <div class="probability-fill" id="probabilityFill"></div>
+        </div>
+
+        <p class="probability-text">Confidence Level: <strong>{{ probability }}%</strong></p>
+
+
+        <a href="/" class="back-btn">Analyze Another Transaction</a>
     </div>
     {% endif %}
 </div>
+<script>
+document.getElementById('fraudForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    document.getElementById('loadingOverlay').style.display = 'flex';
+
+    setTimeout(() => {
+        this.submit();
+    }, 100);
+});
+</script>
+
+{% if probability %}
+<script>
+    document.getElementById("probabilityFill").style.width = "{{ probability }}%";
+</script>
+{% endif %}
 
 </body>
 </html>
