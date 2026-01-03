@@ -1,55 +1,102 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, render_template, request
 import numpy as np
+import pandas as pd
 import joblib
 
 app = Flask(__name__)
 
-# Load model and scaler
-model = joblib.load("fraud_model.pkl")
-scaler = joblib.load("scaler.pkl")
+# ================= LOAD MODELS =================
+lr_model = joblib.load("models/logistic_model.pkl")
+dt_model = joblib.load("models/decision_tree_model.pkl")
+rf_model = joblib.load("models/random_forest_model.pkl")
 
+scaler = joblib.load("models/scaler.pkl")
+
+# ================= MANUAL FEATURE COLUMNS =================
+FEATURE_COLUMNS = [
+    'step',
+    'amount',
+    'oldbalanceOrg',
+    'newbalanceOrig',
+    'oldbalanceDest',
+    'newbalanceDest',
+    'isFlaggedFraud',
+    'type_CASH_OUT',
+    'type_DEBIT',
+    'type_PAYMENT',
+    'type_TRANSFER'
+]
+
+# ================= ROUTES =================
 @app.route("/")
 def home():
     return render_template("index.html")
 
+
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        # Get values from form
+        # ---------- GET INPUT ----------
         step = float(request.form["step"])
         amount = float(request.form["amount"])
         oldbalanceOrg = float(request.form["oldbalanceOrg"])
         newbalanceOrig = float(request.form["newbalanceOrig"])
         oldbalanceDest = float(request.form["oldbalanceDest"])
         newbalanceDest = float(request.form["newbalanceDest"])
-        type_input = request.form["type"]   # dropdown input
+        txn_type = request.form["type"]
 
-        # One-hot encode transaction type
-        type_CASH_OUT = 1 if type_input == "CASH_OUT" else 0
-        type_DEBIT = 1 if type_input == "DEBIT" else 0
-        type_PAYMENT = 1 if type_input == "PAYMENT" else 0
-        type_TRANSFER = 1 if type_input == "TRANSFER" else 0
+        # ---------- BASE DATAFRAME ----------
+        input_dict = {
+            'step': step,
+            'amount': amount,
+            'oldbalanceOrg': oldbalanceOrg,
+            'newbalanceOrig': newbalanceOrig,
+            'oldbalanceDest': oldbalanceDest,
+            'newbalanceDest': newbalanceDest,
+            'isFlaggedFraud':  1, 
+            'type': txn_type
+        }
 
-        # Arrange in EXACT feature order
-        features = np.array([[step, amount, oldbalanceOrg, newbalanceOrig,
-                              oldbalanceDest, newbalanceDest,
-                              type_CASH_OUT, type_DEBIT, type_PAYMENT, type_TRANSFER]])
+        input_df = pd.DataFrame([input_dict])
 
-        # Scale values
-        scaled_features = scaler.transform(features)
+        # ---------- DUMMY ENCODING ----------
+        input_df = pd.get_dummies(input_df, drop_first=True)
 
-        # Predict
-        prediction = model.predict(scaled_features)[0]
-        probability = model.predict_proba(scaled_features)[0][1]
+        # ---------- ALIGN COLUMNS ----------
+        input_df = input_df.reindex(columns=FEATURE_COLUMNS, fill_value=0)
 
-        result = "Fraud Transaction" if prediction == 1 else "Legit Transaction"
+        # ---------- SCALE ----------
+        input_scaled = scaler.transform(input_df)
 
-        return render_template("index.html",
-                               prediction=result,
-                               probability=round(probability, 4))
+        # ---------- MODEL PREDICTIONS ----------
+        lr_pred = lr_model.predict(input_scaled)[0]
+        dt_pred = dt_model.predict(input_scaled)[0]
+        rf_pred = rf_model.predict(input_scaled)[0]
+
+        # ---------- PROBABILITIES ----------
+        lr_prob = lr_model.predict_proba(input_scaled)[0][1]
+        dt_prob = dt_model.predict_proba(input_scaled)[0][1]
+        rf_prob = rf_model.predict_proba(input_scaled)[0][1]
+
+        # ---------- MAJORITY VOTING ----------
+        final_pred = int((lr_pred  + rf_pred) >= 2)
+        final_prob = round((lr_prob  + rf_prob) / 2 * 100, 2)
+
+        if final_prob >= 60:
+            prediction_text = "Fraud"
+        else :
+            prediction_text = "Not Fraud"
+        
+        return render_template( "index.html",
+             prediction=prediction_text, probability=final_prob )
+
 
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return render_template(
+            "index.html",
+            error=str(e)
+        )
+
 
 if __name__ == "__main__":
     app.run(debug=True)
