@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 * {
     margin: 0;
     padding: 0;
@@ -289,7 +289,7 @@ select {
     .form-grid {
         grid-template-columns: 1fr;
     }
-=======
+}
 * {
     margin: 0;
     padding: 0;
@@ -580,5 +580,4 @@ select {
     .form-grid {
         grid-template-columns: 1fr;
     }
->>>>>>> a4029788d12735226b41b4ed3013d6244c3c5a36
 }
