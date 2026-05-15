@@ -7,9 +7,7 @@ The system analyzes transaction details and predicts whether a transaction is **
 
 # 🚀 Live Demo
 
-🔗 Add your deployed Hugging Face/Render link here
-
-Example:
+🔗 
 
 ```md
 https://huggingface.co/spaces/Pranathi55/OnlinePaymentFraudDetection
