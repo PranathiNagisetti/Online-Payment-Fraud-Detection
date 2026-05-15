@@ -33,7 +33,7 @@ The project uses an ensemble of:
 
 * Logistic Regression
 * Random Forest Classifier
-
+* Decision Tree 
 Predictions from both models are combined to improve accuracy and reliability.
 
 ---
@@ -41,16 +41,41 @@ Predictions from both models are combined to improve accuracy and reliability.
 # 📂 Project Structure
 
 ```bash
-Online-Payment-Fraud-Detection/
+ONLINE_PAYMENT_FRAUD_DETECTION/
 │
-├── app.py
-├── requirements.txt
-├── logistic_model.pkl
-├── random_forest_model.pkl
-├── scaler.pkl
-├── templates/
+├── __pycache__/
+│
+├── .venv/
+│   ├── Include/
+│   ├── Lib/
+│   ├── Scripts/
+│   ├── .gitignore
+│   └── pyvenv.cfg
+│
+├── .vscode/
+│
+├── models/
+│   ├── decision_tree_model.pkl
+│   ├── logistic_model.pkl
+│   ├── random_forest_model.pkl
+│   └── scaler.pkl
+│
 ├── static/
-└── README.md
+│   └── style.css
+│
+├── templates/
+│   └── index.html
+│
+├── venv/
+│
+├── .gitattributes
+├── .gitignore
+├── app.py
+├── README.md
+├── remove_ids.txt
+├── sample.json
+├── Untitled5.ipynb
+└── OPFD_RandomForest.ipynb
 ```
 
 ---
