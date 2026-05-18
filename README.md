@@ -10,7 +10,7 @@ The system analyzes transaction details and predicts whether a transaction is **
 🔗 
 
 ```md
-https://huggingface.co/spaces/Pranathi55/OnlinePaymentFraudDetection
+[https://pranathi55-onlinepaymentfrauddetection.hf.space/]([https://pranathi55-onlinepaymentfrauddetection.hf.space?utm_source=chatgpt.com](https://pranathi55-onlinepaymentfrauddetection.hf.space/))
 ```
 
 ---
